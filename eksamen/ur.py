@@ -89,9 +89,13 @@ class UR_RobotState(threading.Thread):
         # Returns 6D vector containing actual joint angles in Radians
         sub_package, sub_package_length = self._get_sub_package(1)
         joint_positions = []
+
         for i in range(6):
             packet_index = 5 + i * 41
-            joint_positions.append(struct.unpack('!d', sub_package[packet_index:packet_index + 8])[0])
+            joint_angle = struct.unpack('!d', sub_package[packet_index:packet_index + 8])[0]
+            rounded_angle = round(joint_angle, 3)
+            joint_positions.append(rounded_angle)
+
         return joint_positions
 
     def get_target_joint_positions(self):

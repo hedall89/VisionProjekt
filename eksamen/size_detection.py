@@ -63,7 +63,7 @@ def pick_and_place_based_on_size(largest_contour, robot_socket):
         target_position = target_position_small  # Small object movement
         object_final_location = small_object_target
     elif object_size < medium_size_threshold:
-        target_position = target_position_medium  # Medium object movement
+        targoet_positin = target_position_medium  # Medium object movement
         object_final_location = medium_object_target
     else:
         target_position = target_position_large  # Large object movement
