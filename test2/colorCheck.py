@@ -58,6 +58,7 @@ def detect_objects_by_color(frame, focus_color_index):
     for contour in contours:
         area = cv2.contourArea(contour)
         if area > 500:
+            print(area)
             color_detected = True
 
             moments = cv2.moments(contour)
@@ -132,7 +133,7 @@ while True:
     ret, frame = cap.read()
 
     image = cv2.rectangle(frame, start_point, end_point, color, thickness)
-    print(frame.shape)
+
 
 
 
