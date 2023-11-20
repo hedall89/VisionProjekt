@@ -1,12 +1,8 @@
-def vg11():
-  set_tcp(p[0.0,0.0,0.137,0.0,0.0,0.0])
-  set_tool_communication(True, 1000000, 2, 1, 1.5, 3.5)
-  set_tool_output_mode(0)
-  set_tool_digital_output_mode(0, 1)
-  set_tool_digital_output_mode(1, 1)
-  set_tool_voltage(24)
-  set_safety_mode_transition_hardness(1)
+def Henrik():
+  global _hidden_verificationVariable=0
   set_gravity([0.0, 0.0, 9.82])
+  set_target_payload(0.430000, [0.002000, 0.009000, 0.011000], [0.000377, 0.000377, 0.000377, 0.000000, 0.000000, 0.000000])
+  set_tcp(p[0.0,0.0,0.1136,0.0,0.0,0.0])
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -14,22 +10,21 @@ def vg11():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
-  set_target_payload(0.890000, [-0.002000, 0.001000, 0.072000], [0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000])
-  step_count_1227a143_2b07_40b6_86ec_d15672011f53 = 0.0
-  thread Step_Counter_Thread_88f6d1c4_96f9_4af7_b57e_ef996e4b5a7f():
-    while (True):
-      step_count_1227a143_2b07_40b6_86ec_d15672011f53 = step_count_1227a143_2b07_40b6_86ec_d15672011f53 + 1.0
-      sync()
-    end
-  end
-  run Step_Counter_Thread_88f6d1c4_96f9_4af7_b57e_ef996e4b5a7f()
-  global temp=0
+  set_tool_communication(True, 1000000, 2, 1, 1.5, 3.5)
+  set_tool_output_mode(0)
+  set_tool_digital_output_mode(0, 1)
+  set_tool_digital_output_mode(1, 1)
+  set_tool_voltage(24)
+  set_safety_mode_transition_hardness(1)
+  global watch_y_pos=0
   global watch_x_pos=0
   global watch_float_x=0
-  global watch_y_pos=0
+  global skrald=[0.378, -0.222, 0.085, 0, -4, 0]
   global watch_pos_z=0
-  global Line_1=p[0.0,0.0,0.0,0.0,0.0,0.0]
-  rtde_set_watchdog("speed_slider_mask", 10.0, "ignore")
+  global y_value=0.3
+  global cur_pos=[0, 0, 0, 0, 0, 0]
+  global temp=0
+  global x_value=0.3
   # begin: URCap Installation Node
   #   Source: OnRobot, 5.15.0, OnRobot A/S
   #   Type: OnRobot Setup
@@ -1469,8 +1464,223 @@ def vg11():
   #======    End of OnRobot VG Run    ======#
   # end: URCap Installation Node
   # begin: URCap Installation Node
-  #   Source: RG - On Robot, 1.9.0, OnRobot A/S
-  #   Type: RG Configuration
+  #   Source: triplea-wingman, 1.4.0, tripleA robotics ApS
+  #   Type: AAA - WINGMAN
+  global AAA = rpc_factory("xmlrpc", "http://127.0.0.1:19902/RPC2")
+  def aaa_get_user_tcp(uuid):
+  local tcp = AAA.server.getTCP(uuid)
+  local rpy2rotvec = rpy2rotvec([d2r(tcp[3]), d2r(tcp[4]), d2r(tcp[5])])
+  local pose = p[tcp[0], tcp[1], tcp[2], rpy2rotvec[0], rpy2rotvec[1], rpy2rotvec[2]]
+  return pose
+  end
+  def aaa_get_modify_tcp(uuid):
+  local arr = AAA.server.getModifyTCP(uuid)
+  local pose = p[arr[0], arr[1], arr[2], d2r(arr[3]), d2r(arr[4]), d2r(arr[5])]
+  return pose
+  end
+  def aaa_get_change_tcp(uuid):
+  local tcp = AAA.server.getChangeTCP(uuid)
+  local rpy2rotvec = rpy2rotvec([d2r(tcp[3]), d2r(tcp[4]), d2r(tcp[5])])
+  local pose = p[tcp[0], tcp[1], tcp[2], rpy2rotvec[0], rpy2rotvec[1], rpy2rotvec[2]]
+  return pose
+  end
+  def aaa_get_user_payload(uuid):
+  local res = AAA.server.getPayload(uuid)
+  return res
+  end
+  def aaa_get_change_payload(uuid):
+  local res = AAA.server.getChangeTcpPayload(uuid)
+  return res
+  end
+  def aaa_get_toolio(uuid):
+  local res = AAA.server.getToolIO(uuid)
+  return res
+  end
+  def aaa_get_user_cog(uuid):
+  local res = AAA.server.getCog(uuid)
+  return res
+  end
+  def aaa_get_change_cog(uuid):
+  local res = AAA.server.getChangeTcpCog(uuid)
+  return res
+  end
+  def aaa_set_user_tcp(uuid):
+  local tcp = aaa_get_user_tcp(uuid)
+  set_tcp(tcp)
+  return tcp
+  end
+  def aaa_set_change_tcp(uuid):
+  local tcp = aaa_get_change_tcp(uuid)
+  set_tcp(tcp)
+  return tcp
+  end
+  def aaa_set_change_payload(uuid):
+  local payload = aaa_get_change_payload(uuid)
+  local cog = aaa_get_change_cog(uuid)
+  set_payload(payload, cog)
+  textmsg("current_change_cog=", get_target_payload_cog())
+  textmsg("current_change_payload=", get_target_payload())
+  return [payload, cog[0], cog[1], cog[2]]
+  end
+  def aaa_set_user_payload(uuid):
+  local payload = aaa_get_user_payload(uuid)
+  local cog = aaa_get_user_cog(uuid)
+  set_payload(payload, cog)
+  textmsg("current_user_cog=", get_target_payload_cog())
+  textmsg("current_user_payload=", get_target_payload())
+  return [payload, cog[0], cog[1], cog[2]]
+  end
+  def aaa_set_w1payload(uuid):
+  local payload = aaa_get_w1_payload(uuid)
+  local cog = aaa_get_w1_cog(uuid)
+  set_payload(payload, cog)
+  return [payload, cog[0], cog[1], cog[2]]
+  end
+  def aaa_get_voltage(uuid):
+  local voltage = AAA.server.getVoltage(uuid)
+  return voltage
+  end
+  def aaa_set_voltage(uuid):
+  local volt = AAA.server.getVoltage(uuid)
+  set_tool_voltage(volt)
+  return volt
+  end
+  def aaa_to_pose(arr):
+  local pose = p[arr[0], arr[1], arr[2], arr[3], arr[4], arr[5]]
+  return pose
+  end
+  def aaa_offset_to_pose(arr):
+  local pose = p[arr[0], arr[1], arr[2], 0, 0, 0]
+  return pose
+  end
+  def aaa_get_w(number,uuid):
+  if (number == 1):
+  local holder = AAA.server.getW(2,uuid)
+  local holder_pose = aaa_to_pose(holder)
+  local offset = AAA.server.getW(number,uuid)
+  local offset_pose = aaa_to_pose(offset)
+  textmsg("w1_holder_pose=", holder_pose)
+  textmsg("w1_offset_pose=", offset_pose)
+  local rel = pose_trans(holder_pose, offset_pose)
+  textmsg("w1_transpose=", rel)
+  return rel
+  elif (number == 2):
+  local holder = AAA.server.getW(number,uuid)
+  local holde_pose = aaa_to_pose(holder)
+  return holde_pose
+  elif (number == 3):
+  local holder = AAA.server.getW(2,uuid)
+  local holder_pose = aaa_to_pose(holder)
+  local offset = AAA.server.getW(number,uuid)
+  local offset_pose = aaa_to_pose(offset)
+  textmsg("w3_holder_pose=", holder_pose)
+  textmsg("w3_offset_pose=", offset_pose)
+  local rel = pose_trans(holder_pose, offset_pose)
+  textmsg("w3_transpose=", rel)
+  return rel
+  elif (number == 4):
+  local holder = AAA.server.getW(2,uuid)
+  local holder_pose = aaa_to_pose(holder)
+  local offset = AAA.server.getW(number,uuid)
+  local offset_pose = aaa_to_pose(offset)
+  textmsg("w4_holder_pose=", holder_pose)
+  textmsg("w4_offset_pose=", offset_pose)
+  local rel = pose_trans(holder_pose, offset_pose)
+  textmsg("w4_transpose=", rel)
+  return rel
+  elif (number == 0):
+  local enter = AAA.server.getW(number,uuid)
+  return aaa_to_pose(enter)
+  elif (number == 5):
+  local exit = AAA.server.getW(number,uuid)
+  return aaa_to_pose(exit)
+  else:
+  return p[0,0,0,0,0,0]
+  end
+  end
+  def aaa_ping():
+  return AAA.server.ping()
+  end
+  def aaa_get_w1_payload(uuid):
+  local payload = AAA.server.getW1Payload(uuid)
+  return payload
+  end
+  def aaa_get_w1_cog(uuid):
+  local cog = AAA.server.getW1Cog(uuid)
+  return cog
+  end
   # end: URCap Installation Node
-vg_release(2,timeout=0.0,autoidle=False,tool_index=0)
+  step_count_980f5720_763d_4c73_8c9d_b06465224ff1 = 0.0
+  thread Step_Counter_Thread_4759bf76_90bc_410f_bcb5_32bf0f26c6ad():
+    while (True):
+      step_count_980f5720_763d_4c73_8c9d_b06465224ff1 = step_count_980f5720_763d_4c73_8c9d_b06465224ff1 + 1.0
+      sync()
+    end
+  end
+  run Step_Counter_Thread_4759bf76_90bc_410f_bcb5_32bf0f26c6ad()
+  global Home_Pos_p=p[.144659177634, -.521916485386, .189955033964, 1.560888382831, -1.561733839756, -.961963363680]
+  global Home_Pos_q=[-0.7903998533831995, -2.0493089161314906, -1.5398271083831787, -2.0645953617491664, 0.9053373336791992, -0.43974239030946904]
+  global Pickup_p=p[.143778307541, -.523118664343, .067541107527, 1.560972933486, -1.561580452820, -.961944464357]
+  global Pickup_q=[-0.7927287260638636, -2.208543439904684, -1.645695686340332, -1.7981087170042933, 0.9026128053665161, -0.4420712629901331]
+  global Over_Pickup_p=p[.143808929596, -.523127737792, .178950940567, 1.561023606857, -1.561522727241, -.961922396707]
+  global Over_Pickup_q=[-0.7927492300616663, -2.0618778667845667, -1.5516927242279053, -2.039018770257467, 0.903219997882843, -0.44169313112367803]
+  global move_back_p=p[.286711379005, -.318946794560, .274802995732, 2.054361026783, .022250662460, -.010810291409]
+  global move_back_q=[0.009400604292750359, -1.1751546126655121, -2.4397411346435547, -1.113917962913849, 0.48073387145996094, -1.571864430104391]
+  global Waypoint_4_p=p[.335998772356, .155046606961, .203822228455, 1.929658822781, .014996315802, .011419014824]
+  global Waypoint_4_q=[1.0939651727676392, -1.795948167840475, -1.8982800245285034, -2.1879974804320277, 1.110968828201294, -0.1823504606830042]
+  global unload_p=p[.346172419706, .069366845733, .255364131532, -2.740293564007, .054289624780, -.031302237792]
+  global unload_q=[0.3615039885044098, -1.1905851823142548, -2.269139289855957, -1.074613021021225, 1.929302453994751, -1.1360815207110804]
+  global move_up_p=p[.346154510668, .069363035801, .366420406678, -2.802367215899, .054103119235, -.033411143875]
+  global move_up_q=[0.3979397118091583, -1.138657734995224, -1.9948006868362427, -1.4148427110961457, 1.8667702674865723, -1.1076653639422815]
+  global Waypoint_2_p=p[.143239580788, -.522246117370, .171520148007, 1.560934933491, -1.561637510743, -.961940099653]
+  global Waypoint_2_q=[-0.7924183050738733, -2.067782064477438, -1.563703179359436, -2.021271368066305, 0.903511643409729, -0.4413664976703089]
+  global camera_pos_p=p[.329863191322, .076338099610, .341559697741, 3.139989730441, .030974994943, .036064402792]
+  global camera_pos_q=[0.6407273411750793, -1.1184486907771607, -2.0012800693511963, -1.575033803979391, 1.553977370262146, -0.9476555029498499]
+  $ 1 "BeforeStart"
+  $ 2 "MoveJ"
+  $ 3 "Home_Pos" "breakAfter"
+  movej(get_inverse_kin(Home_Pos_p, qnear=Home_Pos_q), a=1.3962634015954636, v=1.0471975511965976)
+  $ 4 "Robot Program"
+  $ 5 "MoveL"
+  $ 6 "Pickup" "breakAfter"
+  movel(Pickup_p, a=1.2, v=0.25)
+  # begin: URCap Program Node
+  #   Source: OnRobot, 5.15.0, OnRobot A/S
+  #   Type: VG Grip
+  $ 7 "VG Grip (AB:70.0 kPa)"
+  vg_grip_delayed(tool_index = 0, channel = 2, vacuum = 68, timeout = 3.0, alert = True, delay = 0.0, mass = 0.0)
+  # end: URCap Program Node
+  $ 8 "Over_Pickup" "breakAfter"
+  movel(Over_Pickup_p, a=1.2, v=0.25)
+  $ 9 "MoveL"
+  $ 10 "Over_Pickup" "breakAfter"
+  movel(Over_Pickup_p, a=1.2, v=0.25)
+  $ 11 "move_back" "breakAfter"
+  movel(move_back_p, a=1.2, v=0.25)
+  $ 12 "Waypoint_4" "breakAfter"
+  movel(Waypoint_4_p, a=1.2, v=0.25)
+  $ 13 "unload" "breakAfter"
+  movel(unload_p, a=1.2, v=0.25, r=0.001)
+  $ 14 "move_up" "breakAfter"
+  movel(move_up_p, a=1.2, v=0.1, r=0.05)
+  $ 15 "MoveL"
+  $ 16 "move_back" "breakAfter"
+  movel(move_back_p, a=1.2, v=0.25, r=0.05)
+  $ 17 "Over_Pickup" "breakAfter"
+  movel(Over_Pickup_p, a=1.2, v=0.25, r=0.11)
+  $ 18 "Pickup" "breakAfter"
+  movel(Pickup_p, a=1.2, v=0.25)
+  # begin: URCap Program Node
+  #   Source: OnRobot, 5.15.0, OnRobot A/S
+  #   Type: VG Release
+  $ 19 "VG Release (AB)"
+  on_return = vg_release(channel = 2, timeout = 3.0, autoidle = False, tool_index = 0)
+  vg_payload_set( 0.0, 2, tool_index =  0 )
+  # end: URCap Program Node
+  $ 20 "MoveL"
+  $ 21 "Waypoint_2" "breakAfter"
+  movel(Waypoint_2_p, a=1.2, v=0.25)
+  $ 22 "MoveJ"
+  $ 23 "camera_pos" "breakAfter"
+  movej(get_inverse_kin(camera_pos_p, qnear=camera_pos_q), a=1.3962634015954636, v=1.0471975511965976)
 end

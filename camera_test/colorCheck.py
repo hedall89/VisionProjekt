@@ -133,7 +133,7 @@ while True:
     ret, frame = cap.read()
 
     image = cv2.rectangle(frame, start_point, end_point, color, thickness)
-
+    #print(frame.shape)
 
 
 
