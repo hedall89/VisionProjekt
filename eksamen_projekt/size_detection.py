@@ -17,16 +17,14 @@ pick_up_position = []
 moveto = ""
 
 #Target positioner til aflevering af objekter baseret på størrelsen
-target_position_small = [1.366, -1.876, -1.656, -1.177, 1.547, -0.225]  # Small object movement
-target_position_medium = [1.149, -2.019, -1.401, -1.286, 1.548, -0.441]  # Medium object movement
-target_position_large = [1.832, -1.732, -1.782, -1.205, 1.548, 0.242]  # Large object movement
+target_position_small = [1.585, -1.776, -1.757, -1.182, 1.547, -0.005]  # Small object movement
+target_position_medium = [1.366, -1.876, -1.656, -1.177, 1.547, -0.225]  # Medium object movement
+target_position_large = [1.149, -2.019, -1.401, -1.286, 1.548, -0.441]  # Large object movement
 object_final_location = None
-small_object_target = [1.366, -1.95, -1.747, -1.013, 1.547, -0.225]
-medium_object_target = [1.149, -2.093, -1.52, -1.092, 1.548, -0.441]
-large_object_target = [1.832, -1.833, -1.909, -0.978, 1.548, 0.241]
+
 
 # Størrelseforhold mellem objekterne til sortering
-small_size_threshold = 5600
+small_size_threshold = 6700
 medium_size_threshold = 9900
 large_size_threshold = 9999
 
@@ -110,11 +108,11 @@ def size_sorting(largest_contour, robot_socket, robot_moved_to_default):
         move_up_in_z(robot_socket,0.09)
 
         # Robotten bevæger sig til afleveringspositionen
-        move_to_position(robot_socket, target_position, moveto)
+        move_position_joints(robot_socket, target_position, moveto)
         Vacuum("OFF", robot_socket)
         time.sleep(1)
         size_counts[moveto] += 1
-        move_to_position(robot_socket, picture_position, moveto)
+        move_position_joints(robot_socket, picture_position, moveto)
 
     # Hvis robotten allerede har bevæget sig til standardpositionen
     elif robot_moved_to_default:
@@ -123,7 +121,7 @@ def size_sorting(largest_contour, robot_socket, robot_moved_to_default):
     # Hvis ingen betingelser er opfyldt, sættes robotten til standardpositionen
     else:
         moveto = "Default"
-        move_to_position(robot_socket, picture_position, moveto)
+        move_position_joints(robot_socket, picture_position, moveto)
         robot_moved_to_default = True
 
     return robot_moved_to_default

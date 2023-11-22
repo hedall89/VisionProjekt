@@ -52,63 +52,49 @@ def move_linear(q):
 
 
 def move_position_linear(robotsocket, position, color):
+    print(f"Moving to {color} position")
 
-    print(f"Moving to pick up {color} at position: {position}")
-    time.sleep(1)
     ur_state = ur.UR_RobotState(robotsocket)
     ur_state.start()
-
-    def check_program_running():
-        time.sleep(0.2)
-        while ur_state.is_program_running():
-            time.sleep(0.1)
-
-        print("Move completed")
-
-    # Start a thread to check if the robot is still moving
-    thread = threading.Thread(target=check_program_running)
-    thread.start()
 
     # Perform the movement
     position = move_linear(position)
     robotsocket.send(position)
 
-    # Wait for the thread to finish
-    thread.join()
+    # Wait for the movement to complete
+    time.sleep(0.2)
+    while ur_state.is_program_running():
+        time.sleep(0.1)
+
+    print("Move completed")
 
     ur_state.stop()
 
-def move_to_position(robotsocket, position, moveto):
+def move_position_joints(robotsocket, position, moveto):
     print(f"Moving to {moveto} position")
+
     ur_state = ur.UR_RobotState(robotsocket)
     ur_state.start()
-
-    def check_program_running():
-        time.sleep(0.2)
-        while ur_state.is_program_running():
-            time.sleep(0.1)
-
-        print("Move completed")
-
-    # Start a thread to check if the robot is still moving
-    thread = threading.Thread(target=check_program_running)
-    thread.start()
 
     # Perform the movement
     position = move_joints(position)
     robotsocket.send(position)
 
-    # Wait for the thread to finish
-    thread.join()
+    # Wait for the movement to complete
+    time.sleep(0.2)
+    while ur_state.is_program_running():
+        time.sleep(0.1)
+
+    print("Move completed")
 
     ur_state.stop()
 
 def calculate_position_color(x_pix,y_pix):
     # robot
     robot_max_x = 485
-    robot_min_x = 175
-    robot_max_y = -135
-    robot_min_y = 100
+    robot_min_x = 171
+    robot_max_y = -134
+    robot_min_y = 110
 
     #pixel
     pixel_max_x = 640
@@ -137,9 +123,9 @@ def calculate_position_color(x_pix,y_pix):
 def calculate_position_size(x_pix, y_pix, area):
     # robot mm
     robot_max_x = 485
-    robot_min_x = 175
-    robot_max_y = -135
-    robot_min_y = 100
+    robot_min_x = 171
+    robot_max_y = -134
+    robot_min_y = 110
 
     #pixel
     pixel_max_x = 640
@@ -161,7 +147,7 @@ def calculate_position_size(x_pix, y_pix, area):
 
     if area >= 9999:
         point_z = 138 / 1000
-    elif area > 5600 and area < 9900:
+    elif area > 6700 and area < 9900:
         point_z = 128 / 1000
     else:
         point_z = 119 / 1000

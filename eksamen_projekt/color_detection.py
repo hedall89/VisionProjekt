@@ -1,7 +1,7 @@
 import time
 import cv2
 import numpy as np
-from RobotMovement import Vacuum, move_to_position, calculate_position_color, move_position_linear, move_up_in_z
+from RobotMovement import Vacuum, move_position_joints, calculate_position_color, move_position_linear, move_up_in_z
 
 #Denne variable bruges til at bestemme om robotten er i sin udgangsposition til at behandle billeder.
 robot_moved_to_default = False
@@ -68,7 +68,7 @@ def detect_objects_by_color(frame, focus_color_index):
     contours, _ = cv2.findContours(focused_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     color_detected = False
-
+    print(len(contours))
     for contour in contours:
         # Beregn området af konturen
         area = cv2.contourArea(contour)
@@ -89,6 +89,7 @@ def detect_objects_by_color(frame, focus_color_index):
 
             # Tegn konturen på billedet
             cv2.drawContours(frame, [contour], -1, (0, 255, 0), 3)
+            break
         else:
             color_detected = False
 
@@ -117,7 +118,7 @@ def color_sorting(focus_method, focus_color_index, frame,robot_socket,robot_move
         picture_color = cv2.imread("billeder/picture_color.png")
         cv2.imshow("Test", picture_color)
         cv2.waitKey(1)
-
+        #print(color_detected, robot_moved_to_default,"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         # Hvis farve detekteres, og robotten er i standardpositionen
         if color_detected and robot_moved_to_default:
             # Bestemmer objektfarven baseret på fokusfarveindekset
@@ -145,11 +146,11 @@ def color_sorting(focus_method, focus_color_index, frame,robot_socket,robot_move
             move_up_in_z(robot_socket,0.09)
 
             # Robotten bevæger sig til afleveringspositionen
-            move_to_position(robot_socket, target_position, moveto)
+            move_position_joints(robot_socket, target_position, moveto)
             Vacuum("OFF", robot_socket)
             time.sleep(1)
             color_counts[moveto] += 1
-            move_to_position(robot_socket, picture_position, moveto)
+            move_position_joints(robot_socket, picture_position, moveto)
 
         # Hvis robotten allerede har bevæget sig til standardpositionen
         elif robot_moved_to_default:
@@ -158,7 +159,8 @@ def color_sorting(focus_method, focus_color_index, frame,robot_socket,robot_move
         # Hvis ingen betingelser er opfyldt, sæt robotten til standardpositionen
         else:
             moveto = "Default"
-            move_to_position(robot_socket, picture_position, moveto)
+            move_position_joints(robot_socket, picture_position, moveto)
             robot_moved_to_default = True
+            print(robot_moved_to_default)
 
-    return color_detected, robot_moved_to_default
+    return processed_frame, color_detected, robot_moved_to_default

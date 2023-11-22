@@ -27,10 +27,6 @@ while True:
 
     # Håndter fokusmetoden "Size"
     if focus_method == "size":
-
-        # Udfør size_sorting-funktionen, og opdater variablen 'robot_moved_to_default'
-        robot_moved_to_default = size_sorting(*detect_objects_by_size(frame, colors), robot_socket,
-                                              robot_moved_to_default)
         #text på videofeed til sorterings metode
         cv2.putText(frame, f"Sorting by: Size", (1, 10), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0, 0, 0), 1)
         #Text på videofeed til counter
@@ -60,15 +56,16 @@ while True:
         focus_color_index = (focus_color_index + 1) % len(colors)
 
     # Vent på brugerinput
-    key = cv2.waitKeyEx(1) & 0xFF
+    key = cv2.waitKey(1) & 0xFF
     if key == ord('q'):
         break
     elif key == ord('c'):
         focus_method = "color"
     elif key == ord('s'):
         focus_method = "size"
-    elif key == ord('p'):
+    elif key == ord('r'):
         focus_method = ""
+    elif key == ord('p'):
         pickup_crate()
 
 # lukker video optagelse og lukker alle vinduer.
